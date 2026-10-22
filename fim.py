@@ -45,4 +45,25 @@ def create_baseline():
         """Compare the current hash with the baseline hash and return status object."""
         if not os.path.exists(BASELINE_FILE):
             return{"status" : "error", "message" : "no baseline"}
-    
+
+      with open(BASELINE_FILE, 'r') as file:
+        baseline_data = json.load(file)
+
+        stored_hash = baseline_data.get("hash")
+        current_hash = calculate_file_hash(TARGET_FILE)
+
+        if current_hash is None:
+            return {"status" : "error", "message" : f"Target file {TARGET_FILE} not found. "}
+        
+        is_intact = (current_hash == stored_hash)
+
+        return {
+            "status" : "success",
+            "file" : TARGET_FILE,
+            "stored_hash" : stored_hash,
+            "current_hash" : current_hash,
+            "is_intact" : is_intact,
+            "message" : "File is intact" if is_intact 
+            else "ALERT : File has been modified !"
+        }
+
